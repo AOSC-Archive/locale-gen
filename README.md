@@ -1,4 +1,4 @@
 locale-gen
 ==========
 
-Fork of Arch Linux's locale-gen utility
+Fork of Arch Linux's locale-gen utility.
