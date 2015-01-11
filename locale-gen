@@ -47,6 +47,11 @@ while read locale charset; do
         else 
         	input=`echo $locale | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/'`
         fi
+        if [ -f /opt/32/share/locale/locale.alias ]; then
+        	true
+        else
+        	cp /usr/share/locale/locale.alias
+        fi
 	localedef -i $input -c -f $charset -A /opt/32/share/locale/locale.alias $locale
 	echo ' done'
 done < $LOCALEGEN
