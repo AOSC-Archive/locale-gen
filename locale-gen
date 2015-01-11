@@ -1,7 +1,5 @@
 #!/bin/sh
 set -e
-LOCALEGEN=/etc/locale.gen
-LOCALES=/usr/share/i18n/locales
 unset POSIXLY_CORRECT || true
 
 [ -f $LOCALEGEN -a -s $LOCALEGEN ] || exit 0;
@@ -9,20 +7,46 @@ unset POSIXLY_CORRECT || true
 # Remove all old locale dir and locale-archive before generating new
 # locale data.
 rm -rf /usr/lib/locale/* || true
+rm -rf /opt/32/lib/locale/* || true
 
 umask 022
 
-echo "Generating locales..."
+echo "Generating locales for main system runtime..."
 while read locale charset; do
-	case $locale in \#*|"") continue;; esac; 
+	case $locale in \#*|"")
+		continue;; 
+	esac; 
 	[ -n "$locale" -a -n "$charset" ] || { echo "E: Bad entry '$locale $charset', skipping.">&2; continue; }
 	echo -n $locale | sed 's/\([^.\@]*\).*/\1/'
 	echo -n ".$charset"
 	echo -n $locale | sed 's/\([^\@]*\)\(\@.*\)*/\2/'
 	echo -n '...'
-        if [ -f $LOCALES/$locale ]; then input=$locale
-        else input=`echo $locale | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/'`; fi
+        if [ -f /usr/share/i18n/locales/$locale ]; then 
+        	input=$locale
+        else 
+        	input=`echo $locale | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/'`
+        fi
 	localedef -i $input -c -f $charset -A /usr/share/locale/locale.alias $locale
+	echo ' done'
+done < $LOCALEGEN
+echo "Generation complete."
+
+echo "Generating locales for 32subsystem runtime..."
+while read locale charset; do
+	case $locale in \#*|"")
+		continue;; 
+	esac; 
+	[ -n "$locale" -a -n "$charset" ] || { echo "E: Bad entry '$locale $charset', skipping.">&2; continue; }
+	echo -n $locale | sed 's/\([^.\@]*\).*/\1/'
+	echo -n ".$charset"
+	echo -n $locale | sed 's/\([^\@]*\)\(\@.*\)*/\2/'
+	echo -n '...'
+        if [ -f /opt/32/share/i18n/locales/$locale ]; then 
+        	input=$locale
+        else 
+        	input=`echo $locale | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/'`
+        fi
+	localedef -i $input -c -f $charset -A /opt/32/share/locale/locale.alias $locale
 	echo ' done'
 done < $LOCALEGEN
 echo "Generation complete."
