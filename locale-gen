@@ -17,16 +17,15 @@ while read locale charset; do
 		continue;;
 	esac;
 	[ -n "$locale" -a -n "$charset" ] || { echo "E: Bad entry '$locale $charset', skipping.">&2; continue; }
-	echo -n $locale | sed 's/\([^.\@]*\).*/\1/'
-	echo -n ".$charset"
-	echo -n $locale | sed 's/\([^\@]*\)\(\@.*\)*/\2/'
+	echo -n "${locale%%[.@]*}.$charset"
+	_t="${locale##*@}"; [ "$_t" != "$locale" -a -n "$_t" ] && echo -n "@${_t}" || _t=''
 	echo -n '...'
         if [ -f /usr/share/i18n/locales/$locale ]; then
         	input=$locale
         else
-        	input=`echo $locale | sed 's/\([^.]*\)[^@]*\(.*\)/\1\2/'`
+        	input="${locale%%[.@]*}${_t:+@$_t}"
         fi
-	localedef -i $input -c -f $charset -A /usr/share/locale/locale.alias $locale
+	localedef -i $input -c -f $charset -A /usr/share/locale/locale.alias $locale &&
 	echo ' done'
 done < $LOCALEGEN
 echo "Generation complete."
