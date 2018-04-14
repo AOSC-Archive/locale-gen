@@ -1,13 +1,13 @@
 #!/bin/sh
 set -e
-LOCALEGEN=/etc/locale.gen
+LOCALEGEN="$PWD"/localepack/etc/locale.gen
 unset POSIXLY_CORRECT || true
 
 [ -f $LOCALEGEN -a -s $LOCALEGEN ] || exit 0;
 
 # Remove all old locale dir and locale-archive before generating new
 # locale data.
-[ -f /usr/lib/locale/locale-archive ] && rm -f /usr/lib/locale/locale-archive
+[ -f "$PWD"/abdist/usr/lib/locale/locale-archive ] && rm -f "$PWD"/abdist/usr/lib/locale/locale-archive
 
 umask 022
 
@@ -20,12 +20,12 @@ while read locale charset; do
 	echo -n "${locale%%[.@]*}.$charset"
 	_t="${locale##*@}"; [ "$_t" != "$locale" -a -n "$_t" ] && echo -n "@${_t}" || _t=''
 	echo -n '...'
-        if [ -f /usr/share/i18n/locales/$locale ]; then
+        if [ -f "$PWD"/abdist/usr/share/i18n/locales/$locale ]; then
         	input=$locale
         else
         	input="${locale%%[.@]*}${_t:+@$_t}"
         fi
-	localedef -i $input -c -f $charset -A /usr/share/locale/locale.alias $locale &&
+	localedef --prefix="$PWD"/abdist -i $input -c -f $charset -A "$PWD"/intl/locale.alias $locale &&
 	echo ' done'
 done < $LOCALEGEN
 echo "Generation complete."
