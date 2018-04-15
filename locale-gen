@@ -25,7 +25,7 @@ while read locale charset; do
         else
         	input="${locale%%[.@]*}${_t:+@$_t}"
         fi
-	localedef --prefix="$PWD"/abdist -i $input -c -f $charset -A "$PWD"/intl/locale.alias $locale &&
+	"$PWD"/abdist/lib/ld-2.27.so "$PWD"/abdist/usr/bin/localedef --prefix="$PWD"/abdist -i $input -c -f $charset -A "$PWD"/intl/locale.alias $locale &&
 	echo ' done'
 done < $LOCALEGEN
 echo "Generation complete."
